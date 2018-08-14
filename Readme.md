@@ -121,11 +121,11 @@ server {
 到这里我们就做好了服务器集群进程的管理了，但是有一点，这个网站如果不加密的话，任何人都可以在任何浏览器上登录，随便管理我们的服务器，这样太危险了。为此，我们通过htpasswd对该网页进行加密处理，需要登录才能进入网页。
 
 1. 首先，安装httpd-tools：
-```
+```Bash
 yum -y install httpd-tools
 ```
 2. 然后在指定位置创建密码文件，这里我们创建在supervisord-monitor的配置文件中：
-```
+```Bash
 htpasswd -c /root/supervisord-monitor/application/config/password admin  #  创建password文件，以及用户的登录名admin
 New password: admin
 Re-type new password: admin
@@ -138,7 +138,7 @@ Adding password for user admin
 vim supervisord.monitor.conf
 ```
 添加如下：
-```supervisord.monitor.conf
+```Bash
 auth_basic "Please input password"; #这里是验证时的提示信息
 auth_basic_user_file /root/supervisord-monitor/application/config/password;  # 刚才配置的password文件
 ```
@@ -148,7 +148,7 @@ auth_basic_user_file /root/supervisord-monitor/application/config/password;  # �
 
 ## Redmine integration
 1.Open configuration file:
-```
+```Bash
 vim application/config/supervisor.php
 ```
 2.Change this lines with your redmine url and auto assigne id:
