@@ -1,6 +1,6 @@
 # Supervisord Multi Server Monitoring Tool
 
-![Screenshot](https://raw.github.com/mlazarov/supervisord-monitor/master/supervisord-monitor.png)
+![Screenshot](https://raw.github.com/hoke/supervisord-monitor/master/supervisord-monitor.png)
 
 ## Features
 
@@ -16,7 +16,7 @@
 
 1.Clone supervisord-monitor to your vhost/webroot:
 ```
-git clone https://github.com/mlazarov/supervisord-monitor.git
+git clone https://github.com/hoke/supervisord-monitor.git
 ```
 
 2.Copy application/config/supervisor.php.example to application/config/supervisor.php
@@ -39,8 +39,112 @@ vim application/config/supervisor.php
 ```
 
 5.Configure your web server to point one of your vhosts to 'public_html' directory.
+```
+$config['supervisor_servers'] = array(
+        'JAVA1.ORG11' => array(
+                'url' => 'http://11x.253.85.xxx/RPC2',
+                'port' => '9901',
+        ),
+        'JAVA2.ORG11' => array(
+                'url' => 'http://11x.253.85.xxx/RPC2',
+                'port' => '9902'
+        ),
+        'HBCCCLOUD1.ORG11' => array(
+                'url' => 'http://11x.253.85.xxx/RPC2',
+                'port' => '9903'
+        ),
+        'HBCCCLOUD2.ORG11' => array(
+                'url' => 'http://11x.253.85.xxx/RPC2',
+                'port' => '9904'
+        ),
+        'JAVA1.ORG12' => array(
+                'url' => 'http://11x.253.85.xxx/RPC2',
+                'port' => '9901',
+        ),
+        'JAVA2.ORG12' => array(
+                'url' => 'http://11x.253.85.xxx/RPC2',
+                'port' => '9902'
+        ),
+        'HBCCCLOUD1.ORG12' => array(
+                'url' => 'http://11x.253.85.xxx/RPC2',
+                'port' => '9903'
+        ),
+        'HBCCCLOUD2.ORG12' => array(
+                'url' => 'http://11x.253.85.xxx/RPC2',
+                'port' => '9904'
+        ),
+
+);
+```
+
 6.Open web browser and enter your vhost url.
 
+## 设置nginx
+
+>* supervisord.monitor.conf
+```
+server {
+        listen       8082;
+        set $web_root /www/web/supervisord/public_html;
+        root $web_root;
+        server_name localhost;
+        index  index.html index.php index.htm;
+        error_page  400 /errpage/400.html;
+        error_page  403 /errpage/403.html;
+        error_page  404 /errpage/404.html;
+        error_page  503 /errpage/503.html;
+        location ~ \.php(.*)$ {
+                fastcgi_pass  unix:/tmp/php-56-cgi.sock;
+                fastcgi_index  index.php;
+                fastcgi_param  SCRIPT_FILENAME  $DOCUMENT_ROOT$fastcgi_script_name;
+                #fastcgi_param  SCRIPT_FILENAME $web_root$fastcgi_script_name;
+                fastcgi_param  SCHEME $scheme;
+                fastcgi_param PATH_INFO $2;
+                include fcgi.conf;
+                #include        fastcgi_params;
+                #fastcgi_pass 127.0.0.1:9000;
+        }
+       # location ~ /\.ht {
+       #         deny  all;
+       # }
+        location / {
+               #  try_files $uri $uri/ /index.php;
+                 auth_basic "Please input password";
+                 auth_basic_user_file /www/web/supervisord/application/config/password;
+                 try_files $uri $uri/ /?$args;
+        }
+}
+```
+保存后，重启nginx。
+
+## 给网站加密码
+到这里我们就做好了服务器集群进程的管理了，但是有一点，这个网站如果不加密的话，任何人都可以在任何浏览器上登录，随便管理我们的服务器，这样太危险了。为此，我们通过htpasswd对该网页进行加密处理，需要登录才能进入网页。
+
+1. 首先，安装httpd-tools：
+```
+yum -y install httpd-tools
+```
+2. 然后在指定位置创建密码文件，这里我们创建在supervisord-monitor的配置文件中：
+```
+htpasswd -c /root/supervisord-monitor/application/config/password admin  #  创建password文件，以及用户的登录名admin
+New password: admin
+Re-type new password: admin
+Adding password for user admin
+```
+这样我们就创建了一个用户名及密码都为admin的账户。
+
+3. 最后，再将其写入到nginx的配置中即可：
+```bash
+vim supervisord.monitor.conf
+```
+添加如下：
+```supervisord.monitor.conf
+auth_basic "Please input password"; #这里是验证时的提示信息
+auth_basic_user_file /root/supervisord-monitor/application/config/password;  # 刚才配置的password文件
+```
+4. 再次重启nginx后，登录网站，会弹出登录窗口。登录即可。
+
+这样我们便完成了supervisor的集群式管理。
 
 ## Redmine integration
 1.Open configuration file:
