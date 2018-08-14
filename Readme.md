@@ -82,7 +82,7 @@ $config['supervisor_servers'] = array(
 ## 设置nginx
 
 >* supervisord.monitor.conf
-```
+```Bash
 server {
         listen       8082;
         set $web_root /www/web/supervisord/public_html;
