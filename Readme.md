@@ -1,6 +1,6 @@
 # Supervisord Multi Server Monitoring Tool
 
-![Screenshot](https://raw.github.com/hoke/supervisord-monitor/master/supervisord-monitor.png)
+![Screenshot](https://raw.githubusercontent.com/hoke58/supervisord-monitor/master/supervisord-monitor.png)
 
 ## Features
 
@@ -38,8 +38,7 @@ Do not forget to restart supervisord service after changing supervisord.conf
 vim application/config/supervisor.php
 ```
 
-5.Configure your web server to point one of your vhosts to 'public_html' directory.
-```
+```php
 $config['supervisor_servers'] = array(
         'JAVA1.ORG11' => array(
                 'url' => 'http://11x.253.85.xxx/RPC2',
@@ -76,6 +75,7 @@ $config['supervisor_servers'] = array(
 
 );
 ```
+5.Configure your web server to point one of your vhosts to 'public_html' directory.
 
 6.Open web browser and enter your vhost url.
 
