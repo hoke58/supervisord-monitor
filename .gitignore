@@ -1,4 +1,4 @@
-application/config/supervisor.php
+# application/config/supervisor.php
 composer.phar
 composer.lock
 /vendor
